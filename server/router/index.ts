@@ -1,4 +1,4 @@
-import {t} from '../trpc'
+import {adminProcedure, t} from '../trpc'
 import {z} from 'zod'
 import {userRouter} from './user'
 
@@ -28,7 +28,13 @@ export const appRouter = t.router({
 		throw new Error('error nessage')
 	}),
 
-	users: userRouter
+	users: userRouter,
+
+	secretData: adminProcedure.query(({ctx}) => {
+		console.log(ctx.user)
+
+		return "Super top secret admin data"
+	})
 })
 
 // export const mergedRoute = t.mergeRouters(appRouter, userRouter)

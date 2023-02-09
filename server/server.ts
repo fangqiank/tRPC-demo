@@ -1,8 +1,10 @@
+import ws from 'ws'
 import { createExpressMiddleware } from "@trpc/server/adapters/express"
+import {applyWSSHandler} from '@trpc/server/adapters/ws'
 import express from "express"
 import cors from "cors"
 import dotenv from 'dotenv'
-import { t } from "./trpc"
+import { createContext } from "./context" 
 import { appRouter } from "./router"
 
 dotenv.config()
@@ -17,10 +19,17 @@ app.use(
   "/trpc",
   createExpressMiddleware({
     router: appRouter,
-    createContext: ({ req, res }) => {
-      return {}
-    },
+    createContext
   })
 )
 
-app.listen(port, () => console.log(`Server is running on port ${port}`))
+const server = app.listen(
+  port, 
+  () => console.log(`Server is running on port ${port}`)
+)
+
+applyWSSHandler({
+  wss: new ws.Server({server}),
+  router: appRouter,
+  createContext
+})
